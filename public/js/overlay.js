@@ -1,7 +1,7 @@
-// ==================== overlay.js ====================
+// ==================== public/js/overlay.js ====================
+// FINAL VERSION – Ready for OBS and live streams
 
-// CHANGE THIS ONCE — SAME URL AS DASHBOARD
-const RENDER_BACKEND_URL = 'wss://orange-backend-xxxx.onrender.com';
+const RENDER_BACKEND_URL = 'wss://streamapp-orange.onrender.com'; // Your real backend
 
 const WS_URL = location.hostname.includes('github.io')
   ? RENDER_BACKEND_URL
@@ -9,63 +9,79 @@ const WS_URL = location.hostname.includes('github.io')
 
 const alertsContainer = document.getElementById('alerts');
 
+// Make overlay truly transparent and ignore mouse in OBS
+document.body.style.background = 'transparent';
+document.body.style.pointerEvents = 'none';
+alertsContainer.style.pointerEvents = 'none';
+
 function createAlert(data) {
-  const { alertType, name, message = '', amount } = data;
+  const { alertType, name = 'Anonymous', message = '', amount } = data;
 
   let title = '';
-  let icon = '';
+  let emoji = '';
 
   switch (alertType) {
-    case 'follower':   title = 'New Follower!'; icon = 'heart'; break;
-    case 'donation':   title = `Donation${amount ? ' $' + amount : ''}!`; icon = 'gift'; break;
-    case 'cheer':      title = 'Bits Cheer!'; icon = 'star'; break;
-    case 'subscriber': title = 'New Subscriber!'; icon = 'crown'; break;
-    case 'raid':       title = 'RAID INCOMING!'; icon = 'bolt'; break;
-    default:           title = 'New Alert!'; icon = 'bell';
+    case 'follower':    title = 'New Follower!';      emoji = 'Follow';     break;
+    case 'donation':    title = 'Donation!';         ' + (amount ? `$${amount}` : ''); emoji = 'Gift';      break;
+    case 'cheer':       title = 'Bits Cheer!';       emoji = 'Star';       break;
+    case 'subscriber':  title = 'New Subscriber!';   emoji = 'Crown';      break;
+    case 'raid':        title = 'RAID INCOMING!';    emoji = 'Lightning';  break;
+    default:            title = 'New Alert!';        emoji = 'Bell';       break;
   }
 
   const alertEl = document.createElement('div');
   alertEl.className = 'alert-popup';
   alertEl.innerHTML = `
-    <h2>${icon} ${title}</h2>
-    <p><strong>${name}</strong>${message ? '<br>' + message : ''}</p>
+    <div class="alert-content">
+      <h2>${emoji} ${title}</h2>
+      <p class="name">${name}</p>
+      ${message ? `<p class="msg">${message}</p>` : ''}
+    </div>
   `;
 
   alertsContainer.appendChild(alertEl);
-  alertsContainer.style.opacity = 1;
 
-  // Auto-remove after 7 seconds with smooth fade
+  // Trigger fade-in
+  requestAnimationFrame(() => {
+    alertsContainer.style.opacity = 1;
+    alertEl.style.opacity = 1;
+    alertEl.style.transform = 'translateY(0)';
+  });
+
+  // Auto-remove after 8 seconds with smooth exit
   setTimeout(() => {
     alertEl.style.opacity = '0';
-    alertEl.style.transform = 'translateY(20px)';
+    alertEl.style.transform = 'translateY(30px)';
     setTimeout(() => {
       alertEl.remove();
       if (alertsContainer.children.length === 0) {
-        alertsContainer.style.opacity = 0;
+        alertsContainer.style.opacity = '0';
       }
     }, 600);
-  }, 7000);
+  }, 8000);
 }
 
 function connect() {
   const socket = new WebSocket(WS_URL);
+
+  socket.onopen = () => console.log('Overlay connected to backend');
 
   socket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
       if (data.type === 'alert') createAlert(data);
     } catch (e) {
-      console.error('Bad message', event.data);
+      console.error('Invalid JSON received:', event.data);
     }
   };
 
   socket.onclose = () => {
-    console.warn('WebSocket closed — reconnecting in 3s...');
+    console.warn('WebSocket disconnected – reconnecting in 3s...');
     setTimeout(connect, 3000);
   };
 
-  socket.onerror = (e) => console.error('WS Error', e);
+  socket.onerror = (err) => console.error('WebSocket error:', err);
 }
 
-// Start connection + auto-reconnect forever
+// Start + forever reconnect
 connect();
