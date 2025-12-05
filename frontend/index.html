@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Orange StreamApp – Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    body { font-family: Arial, sans-serif; background: #1a1a2e; color: #eee; padding: 20px; }
+    h1 { color: #ff8c42; text-align: center; }
+    .card { background: #16213e; padding: 25px; border-radius: 15px; max-width: 500px; margin: 20px auto; box-shadow: 0 0 20px rgba(255,140,66,0.3); }
+    label { display: block; margin: 15px 0 5px; font-weight: bold; }
+    input, select, button {
+      width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: none;
+    }
+    input, select { background: #0f3460; color: white; }
+    button {
+      background: #e94560; color: white; font-size: 18px; cursor: pointer; margin-top: 20px;
+      transition: 0.3s;
+    }
+    button:hover { background: #ff6b6b; }
+    #status { text-align: center; font-size: 18px; margin: 20px 0; }
+    .connected { color: #4ade80; }
+    .disconnected { color: #ef4444; }
+  </style>
+</head>
+<body>
+
+  <h1>Orange StreamApp Dashboard</h1>
+
+  <div class="card">
+    <div id="status" class="disconnected">Connecting...</div>
+    <button id="connect">Reconnect</button>
+
+    <label>Name (optional)</label>
+    <input type="text" id="alert-name" placeholder="e.g. Alex" />
+
+    <label>Alert Type</label>
+    <select id="alert-type">
+      <option value="follower">New Follower</option>
+      <option value="subscriber">New Subscriber</option>
+      <option value="donation">Donation / Tip</option>
+      <option value="cheer">Bits / Cheer</option>
+      <option value="raid">Raid</option>
+    </select>
+
+    <label>Message (optional)</label>
+    <input type="text" id="alert-msg" placeholder="e.g. Welcome to the crew!" />
+
+    <label>Amount (only for donation/cheer)</label>
+    <input type="number" id="alert-amount" placeholder="e.g. 5" />
+
+    <button id="send-alert">Send Alert on Stream!</button>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
