@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orange StreamApp Overlay</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    /* Make it truly transparent for OBS */
+    body.overlay { background: transparent !important; }
+  </style>
+</head>
+<body class="overlay">
+
+  <!-- All alerts will be injected here -->
+  <div id="alerts"></div>
+
+  <script src="js/overlay.js"></script>
+</body>
+</html>
